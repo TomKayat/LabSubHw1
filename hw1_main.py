@@ -375,84 +375,84 @@ def check_params_logistic(trial, train_data, y_train, test_data, y_test):
                                                              C=regularization))
 
 
-def main():
-    print("RF,LR, with all feat, right, small")
-    save_data = False
-    coagulants = ["Hct", "Hgb", "PTT", "WBC", "Fibrinogen", "Platelets"]
-    acid_base_status = ["pH", "BaseExcess", "HCO3", "PaCO2", "Lactate", "Chloride"]
-    kidney = ["BUN", "Calcium", "Creatinine", "Magnesium", "Phosphate"]
-    liver = ["Bilirubin_direct", "AST", "Alkalinephos", "Bilirubin_total"]
-    oxygen = ["SaO2", "EtCO2"]  ##"FiO2"
-    general = ["Glucose"]
-    heart = ["Potassium", "TroponinI"]
-    categories = [coagulants, acid_base_status, kidney, liver, oxygen, general, heart]
-    categories_names = ["coagulants", "acid_base_status", "kidney", "liver", "oxygen", "general", "heart"]
-    featruer_ranges_dict = {"Hct": [35, 49],  # "Hct" : {0: [34.9,44.5], 1: [38.8,50]},
-                            "Hgb": [12.0, 17.5],  # {0:[12.0, 15.5], 1: [ 13.5, 17.5]}
-                            "PTT": [25, 35],
-                            "WBC": [4.5, 11],
-                            "Fibrinogen": [200, 40],
-                            "Platelets": [150, 450],
-                            "pH": [7.35, 7.45],
-                            "BaseExcess": [-2, 2],
-                            "HCO3": [22, 30],
-                            "PaCO2": [35, 45],
-                            "Lactate": [4.5, 19.8],
-                            "Chloride": [96, 106],
-                            "BUN": [6, 20],
-                            "Creatinine": [0.5, 1.3],  # {0: [0.5,1.1], 1:[0.6,1.3]}
-                            "Calcium": [8.6, 10.2],
-                            "Magnesium": [0.85, 1.1],
-                            "Phosphate": [2.5, 4.5],
-                            "Bilirubin_total": [0.3, 1.2],
-                            "Bilirubin_direct": [0.0, 0.3],
-                            "AST": [10, 40],
-                            "Alkalinephos": [44, 147],
-                            "SaO2": [95, 100],
-                            "EtCO2": [35, 45],
-                            "Glucose": [70, 140],
-                            "Potassium": [3.5, 5.0],
-                            "TroponinI": [0, 0.04]
-                            # "FiO2" [21,21]  21% in room air, but can be higher in supplemental oxygen therapy
-                            }
-    if save_data:
-        train_data, _ = prep_df(categories, categories_names, featruer_ranges_dict, r"data/train/")
-        train_data.to_csv("Final_Train_Data.csv", index=False)
-        print("Done preparing training set")
-        test_data, pid = prep_df(categories, categories_names, featruer_ranges_dict, r"data/test/")
-        test_data.to_csv("Final_Test_Data.csv", index=False)
-        pid.to_csv("Final_Test_PID.csv", index=False)
-        print("Done preparing Test set")
-    else:
-        train_data = pd.read_csv(r"Final_Train_Data.csv")
-        test_data = pd.read_csv(r"Final_Test_Data.csv")
-        pid = pd.read_csv(r"Final_Test_PID.csv")
-
-    train_data, y_train, test_data, y_test = prepare_data_for_train(train_data, test_data)
-    train_random_forest(train_data, y_train, test_data, y_test, model=RandomForestClassifier(criterion="gini",
-                                                                                             max_features=None,
-                                                                                             class_weight=None,
-                                                                                             n_estimators=75))
-    # # optuna_xgb(train_data, y_train, test_data, y_test)
-    # print("Optuna logistic")
-    # optuna_logistic(train_data, y_train, test_data, y_test)
-    # print("Optuna forrst")
-    # optuna_random_forest(train_data, y_train, test_data, y_test)
-
-    # train_model(train_data, y_train, test_data, y_test, model=XGBClassifier(booster="dart",
-    #                                                                         learning_rate=0.20067462290570948 ,
-    #                                                                         reg_alpha=13,
-    #                                                                         min_child_weight=2,
-    #                                                                         subsample=0.7605565076595467,
-    #                                                                         n_estimators=151),
-    #             model_name="XGB", save=True)
-
-    # train_model_KNN(train_data, y_train, test_data, y_test, model=KNeighborsClassifier(n_neighbors=3))
-
-    # booster: dart
-    # learning_rate: 0.20067462290570948
-    # alpha: 13    min_child_weight: 2    subsample: 0.7605565076595467    n_estimators: 151
-
-
-if __name__ == '__main__':
-    main()
+# def main():
+#     print("RF,LR, with all feat, right, small")
+#     save_data = False
+#     coagulants = ["Hct", "Hgb", "PTT", "WBC", "Fibrinogen", "Platelets"]
+#     acid_base_status = ["pH", "BaseExcess", "HCO3", "PaCO2", "Lactate", "Chloride"]
+#     kidney = ["BUN", "Calcium", "Creatinine", "Magnesium", "Phosphate"]
+#     liver = ["Bilirubin_direct", "AST", "Alkalinephos", "Bilirubin_total"]
+#     oxygen = ["SaO2", "EtCO2"]  ##"FiO2"
+#     general = ["Glucose"]
+#     heart = ["Potassium", "TroponinI"]
+#     categories = [coagulants, acid_base_status, kidney, liver, oxygen, general, heart]
+#     categories_names = ["coagulants", "acid_base_status", "kidney", "liver", "oxygen", "general", "heart"]
+#     featruer_ranges_dict = {"Hct": [35, 49],  # "Hct" : {0: [34.9,44.5], 1: [38.8,50]},
+#                             "Hgb": [12.0, 17.5],  # {0:[12.0, 15.5], 1: [ 13.5, 17.5]}
+#                             "PTT": [25, 35],
+#                             "WBC": [4.5, 11],
+#                             "Fibrinogen": [200, 40],
+#                             "Platelets": [150, 450],
+#                             "pH": [7.35, 7.45],
+#                             "BaseExcess": [-2, 2],
+#                             "HCO3": [22, 30],
+#                             "PaCO2": [35, 45],
+#                             "Lactate": [4.5, 19.8],
+#                             "Chloride": [96, 106],
+#                             "BUN": [6, 20],
+#                             "Creatinine": [0.5, 1.3],  # {0: [0.5,1.1], 1:[0.6,1.3]}
+#                             "Calcium": [8.6, 10.2],
+#                             "Magnesium": [0.85, 1.1],
+#                             "Phosphate": [2.5, 4.5],
+#                             "Bilirubin_total": [0.3, 1.2],
+#                             "Bilirubin_direct": [0.0, 0.3],
+#                             "AST": [10, 40],
+#                             "Alkalinephos": [44, 147],
+#                             "SaO2": [95, 100],
+#                             "EtCO2": [35, 45],
+#                             "Glucose": [70, 140],
+#                             "Potassium": [3.5, 5.0],
+#                             "TroponinI": [0, 0.04]
+#                             # "FiO2" [21,21]  21% in room air, but can be higher in supplemental oxygen therapy
+#                             }
+#     if save_data:
+#         train_data, _ = prep_df(categories, categories_names, featruer_ranges_dict, r"data/train/")
+#         train_data.to_csv("Final_Train_Data.csv", index=False)
+#         print("Done preparing training set")
+#         test_data, pid = prep_df(categories, categories_names, featruer_ranges_dict, r"data/test/")
+#         test_data.to_csv("Final_Test_Data.csv", index=False)
+#         pid.to_csv("Final_Test_PID.csv", index=False)
+#         print("Done preparing Test set")
+#     else:
+#         train_data = pd.read_csv(r"Final_Train_Data.csv")
+#         test_data = pd.read_csv(r"Final_Test_Data.csv")
+#         pid = pd.read_csv(r"Final_Test_PID.csv")
+#
+#     train_data, y_train, test_data, y_test = prepare_data_for_train(train_data, test_data)
+#     train_random_forest(train_data, y_train, test_data, y_test, model=RandomForestClassifier(criterion="gini",
+#                                                                                              max_features=None,
+#                                                                                              class_weight=None,
+#                                                                                              n_estimators=75))
+#     # # optuna_xgb(train_data, y_train, test_data, y_test)
+#     # print("Optuna logistic")
+#     # optuna_logistic(train_data, y_train, test_data, y_test)
+#     # print("Optuna forrst")
+#     # optuna_random_forest(train_data, y_train, test_data, y_test)
+#
+#     # train_model(train_data, y_train, test_data, y_test, model=XGBClassifier(booster="dart",
+#     #                                                                         learning_rate=0.20067462290570948 ,
+#     #                                                                         reg_alpha=13,
+#     #                                                                         min_child_weight=2,
+#     #                                                                         subsample=0.7605565076595467,
+#     #                                                                         n_estimators=151),
+#     #             model_name="XGB", save=True)
+#
+#     # train_model_KNN(train_data, y_train, test_data, y_test, model=KNeighborsClassifier(n_neighbors=3))
+#
+#     # booster: dart
+#     # learning_rate: 0.20067462290570948
+#     # alpha: 13    min_child_weight: 2    subsample: 0.7605565076595467    n_estimators: 151
+#
+#
+# if __name__ == '__main__':
+#     main()
