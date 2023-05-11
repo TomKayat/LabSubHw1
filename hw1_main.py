@@ -47,6 +47,14 @@ pd.set_option('display.max_columns', 100000)
 
 
 def find_abnormals(row, category, featruer_ranges_dict):
+    """
+    The function recive a featuer`s value and its category, and according to featruer_ranges_dict it determains if
+     the values is normal (0) or not (1).
+    :param row:
+    :param category:
+    :param featruer_ranges_dict:
+    :return: a number between 0 and the categoty size, representing the number of abnormal values in this category.
+    """
     counter = 0
     for feat_val, col in zip(row, category):
         lower = featruer_ranges_dict[col][0]
@@ -60,6 +68,10 @@ def find_abnormals(row, category, featruer_ranges_dict):
 
 #  unseen in fit
 def check_for_abnormal(data, categories, categories_names, new, featruer_ranges_dict):
+    """
+    The function takes in a dataset and a set of features along with their names and creates a new dataset that
+    summarizes the number of abnormal values in each feature according to featruer_ranges_dict.
+    """
     for category, category_name in zip(categories, categories_names):
         data[category_name + "_abnormal"] = data[category].apply(
             lambda x: find_abnormals(x, category, featruer_ranges_dict), axis=1)
@@ -68,7 +80,12 @@ def check_for_abnormal(data, categories, categories_names, new, featruer_ranges_
     return new
 
 
-def fill_Resp(current_df,data_dict ):
+def fill_Resp(current_df,data_dict):
+    """
+    the function takes a DataFrame (current_df) and a dictionary (data_dict) as input,
+    and calculates the normalized maximum and minimum values of the "Resp" column in the DataFrame,
+    and stores them in the dictionary under the keys "Resp_NormMax" and "Resp_NormMin" respectively.
+    """
     resp_min = current_df["Resp"].min()
     resp_max = current_df["Resp"].max()
     if resp_min == resp_max:
@@ -82,6 +99,10 @@ def fill_Resp(current_df,data_dict ):
 
 
 def fill_bp(current_df, data_dict):
+    """
+    The function takes in a dataset and a set of features along with their names and creates a new dataset that
+    summarizes the number of abnormal values in each feature according to featruer_ranges_dict.
+    """
     if len(list(current_df["SBP"].dropna())) > 0:
         data_dict["SBP_last"] = list(current_df["SBP"].dropna())[-1]
     else:
@@ -95,6 +116,7 @@ def fill_bp(current_df, data_dict):
 
 
 def load_data(categories, categories_names, featruer_ranges_dict, path):
+    """this function load the data and creates a row with the chosen parameters for each of the patients as describe in the report."""
     create_df = True
     for file in os.listdir(path):
         data_dict = {}
@@ -128,6 +150,7 @@ def load_data(categories, categories_names, featruer_ranges_dict, path):
 
 
 def fill_by_similarty(dataframe, value_to_match, to_match, to_fill, range_toadd):
+    """this function fills the null values with respect to the similarity of the missing column to another column."""
     twocoldf = dataframe[[to_match, to_fill]].dropna(how="any")
     df_sim = twocoldf[
         (twocoldf[to_match] <= value_to_match + range_toadd) & (twocoldf[to_match] >= value_to_match - range_toadd)][
@@ -141,6 +164,11 @@ def fill_by_similarty(dataframe, value_to_match, to_match, to_fill, range_toadd)
 
 
 def prep_df(categories, categories_names, featruer_ranges_dict, path):
+    """
+    In this fucntion we call the function load_data, remove the pid,
+     fill the SBP and DBP according similarty matric, and fill the null values with meandian
+     :return final data frame and list of pid (for the prediction)
+    """
     print(f"Start processing data from {path}")
     df = load_data(categories, categories_names, featruer_ranges_dict, path)
     pid = df["PID"]
@@ -160,6 +188,10 @@ def prep_df(categories, categories_names, featruer_ranges_dict, path):
 
 
 def prepare_data_for_train(train_data, test_data):
+    """
+    devide the data into featuers and lable. remove the label from the featuers.
+    :return: 4 data frames - two for training; featuers and labels, and two for testing.
+    """
     y_train = train_data["Label"]
     y_test = test_data["Label"]
     train_data = train_data.drop(["Label"], axis=1)
@@ -168,10 +200,14 @@ def prepare_data_for_train(train_data, test_data):
 
 
 def eval_f1(y_test, pred):
+    """
+    calc f1 score for the xgb model.
+    """
     return 1 - f1_score(y_test, pred)
 
 
 def train_model(train_data, y_train, test_data, y_test, model, model_name="XGB", save=False):
+    """ this function fit and predict the model """
     print(f"Training Model {model_name}")
     model.fit(train_data, y_train)
     pred = model.predict(test_data)
@@ -186,6 +222,7 @@ def train_model(train_data, y_train, test_data, y_test, model, model_name="XGB",
 
 
 def train_model_LogisticRegression(train_data, y_train, test_data, y_test, model):
+    """ this function fit and predict the model fot logistic regression"""
     print(f"Training Model LogisticRegression")
     train_data =(train_data-train_data.min())/(train_data.max()-train_data.min())
     test_data =(test_data-test_data.min())/(test_data.max()-test_data.min())
@@ -201,6 +238,8 @@ def train_model_LogisticRegression(train_data, y_train, test_data, y_test, model
 
 
 def train_model_KNN(train_data, y_train, test_data, y_test, model=KNeighborsClassifier(n_neighbors=3)):
+    """ this function fit and predict the model fot knn"""
+
     print(f"Training Model KNN")
     model.fit(train_data, y_train)
     pred = model.predict(test_data)
@@ -215,6 +254,8 @@ def train_model_KNN(train_data, y_train, test_data, y_test, model=KNeighborsClas
 
 
 def train_random_forest(train_data, y_train, test_data, y_test, model):
+    """ this function fit and predict the model fot random forest"""
+
     print(f"Training Model Random Forest")
     model.fit(train_data, y_train)
     pred = model.predict(test_data)
@@ -228,6 +269,7 @@ def train_random_forest(train_data, y_train, test_data, y_test, model):
 
 
 def randomForest_check_parms(trial, train_data, y_train, test_data, y_test):
+    """ check parametesr for optuna"""
     criterions = trial.suggest_categorical("criterion", ["gini", "entropy"])
     max_features = trial.suggest_categorical("max_features", ["sqrt", None, "log2"])
     class_weight = trial.suggest_categorical("class_weight", ["balanced", "balanced_subsample", None])
@@ -239,6 +281,7 @@ def randomForest_check_parms(trial, train_data, y_train, test_data, y_test):
 
 
 def optuna_random_forest(train_data, y_train, test_data, y_test):
+    """ run optuna"""
     save_path = "RandomForest_small_optuna_study_batch.pkl"
     run_name = f'RandomForest_small_trail_res_{time()}.txt'
     for x in range(8):
@@ -273,6 +316,8 @@ def optuna_random_forest(train_data, y_train, test_data, y_test):
 
 
 def check_params(trial, train_data, y_train, test_data, y_test,):
+    """ check parametesr for optuna"""
+
     boosters = trial.suggest_categorical("booster", ["gbtree", "dart"])
     LR = trial.suggest_float("learning_rate", 0.05, 0.5)
     alphas = trial.suggest_int("alpha", 0, 50)
@@ -292,6 +337,8 @@ def check_params(trial, train_data, y_train, test_data, y_test,):
 
 
 def optuna_xgb(train_data, y_train, test_data, y_test):
+    """ run optuna"""
+
     save_path = "xgb_small_optuna_study_batch.pkl"
     run_name = f'trail_res_{time()}.txt'
     for x in range(30):
@@ -325,6 +372,8 @@ def optuna_xgb(train_data, y_train, test_data, y_test):
 
 
 def optuna_logistic(train_data, y_train, test_data, y_test):
+    """ run optuna"""
+
     save_path = "logistic_small_optuna_study_batch.pkl"
     run_name = f'Logistic_small_trail_res_{time()}.txt'
     for x in range(8):
@@ -357,6 +406,8 @@ def optuna_logistic(train_data, y_train, test_data, y_test):
 
 
 def check_params_logistic(trial, train_data, y_train, test_data, y_test):
+    """ check parametesr for optuna"""
+
     class_weights = trial.suggest_categorical("class_weight", ["balanced", None])
     regularization = trial.suggest_float("C", 0, 1)
     max_iter = trial.suggest_int("max_iter", 100, 250)
